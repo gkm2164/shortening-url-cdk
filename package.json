@@ -8,20 +8,33 @@
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",
-    "cdk": "cdk"
+    "cdk": "cdk",
+    "build-lambda": "tsc src/*.ts --outDir dist",
+    "lint": "eslint . --ext .ts"
   },
   "devDependencies": {
-    "@aws-cdk/assert": "1.97.0",
+    "@aws-cdk/assert": "^1.120.0",
+    "@types/aws-lambda": "^8.10.83",
     "@types/jest": "^26.0.10",
     "@types/node": "10.17.27",
+    "@typescript-eslint/eslint-plugin": "^4.29.3",
+    "@typescript-eslint/parser": "^4.29.3",
+    "aws": "0.0.3-2",
+    "aws-cdk": "1.97.0",
+    "aws-lambda": "^1.0.6",
+    "aws-sdk": "^2.978.0",
+    "eslint": "^7.32.0",
     "jest": "^26.4.2",
     "ts-jest": "^26.2.0",
-    "aws-cdk": "1.97.0",
     "ts-node": "^9.0.0",
     "typescript": "~3.9.7"
   },
   "dependencies": {
-    "@aws-cdk/core": "1.97.0",
+    "@aws-cdk/aws-apigateway": "^1.120.0",
+    "@aws-cdk/aws-dynamodb": "^1.120.0",
+    "@aws-cdk/aws-lambda": "^1.120.0",
+    "@aws-cdk/aws-lambda-nodejs": "^1.120.0",
+    "@aws-cdk/core": "^1.120.0",
     "source-map-support": "^0.5.16"
   }
 }
