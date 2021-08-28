@@ -4,7 +4,6 @@ import {Code} from '@aws-cdk/aws-lambda';
 import * as dynamodb from '@aws-cdk/aws-dynamodb';
 import {AttributeType} from '@aws-cdk/aws-dynamodb';
 import * as apigateway from '@aws-cdk/aws-apigateway';
-import {generateUrl} from "../src/main";
 import {LambdaIntegration} from "@aws-cdk/aws-apigateway";
 
 export class ShorturlPrjStack extends cdk.Stack {
