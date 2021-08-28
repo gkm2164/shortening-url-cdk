@@ -4,6 +4,15 @@ This is a blank project for TypeScript development with CDK.
 
 The `cdk.json` file tells the CDK Toolkit how to execute your app.
 
+# How to build?
+
+1. build lambda
+```npm run build-lambda```
+2. synthesize stack
+```cdk synth```
+3. deploy!
+```cdk deploy```
+
 ## Useful commands
 
  * `npm run build`   compile typescript to js
