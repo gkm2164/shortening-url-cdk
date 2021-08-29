@@ -38,7 +38,12 @@ const generateId = () => {
 export const generateUrl = async ({
   body
 }: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
-  if (!body) throw 'error';
+  if (!body) {
+    return {
+      statusCode: 400,
+      body: 'empty body'
+    };
+  }
 
   const id = generateId();
   const { url } = JSON.parse(body) as { url: string };
