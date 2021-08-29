@@ -1,5 +1,6 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
 import { getShortenedUrl, putShortenedUrl } from './repo';
+import * as _ from 'underscore';
 
 export const shortenUrl = async ({
   pathParameters
@@ -29,13 +30,10 @@ const generateId = () => {
   const value =
     'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 
-  const ret = [];
-
-  for (let i = 0; i < 8; i += 1) {
-    ret.push(value[Math.floor(Math.random() * value.length)]);
-  }
-
-  return ret.join('');
+  return _.range(10)
+    .map(() => Math.floor(Math.random() * value.length))
+    .map((idx) => value[idx])
+    .join('');
 };
 
 export const generateUrl = async ({
@@ -44,7 +42,7 @@ export const generateUrl = async ({
   if (!body) throw 'error';
 
   const id = generateId();
-  const { url } = JSON.parse(body);
+  const { url } = JSON.parse(body) as { url: string };
 
   const value = await putShortenedUrl(id, url);
 
