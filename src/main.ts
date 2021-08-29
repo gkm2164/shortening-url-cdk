@@ -9,21 +9,20 @@ export const shortenUrl = async ({
     throw 'path params are empty';
   }
   const { id } = pathParameters;
-
-  const value = await getShortenedUrl(id);
-
-  if (value) {
+  try {
+    const value = await getShortenedUrl(id);
     return {
       statusCode: 301,
       headers: {
         Location: value.url
       }
     };
+  } catch (e) {
+    return {
+      statusCode: 404,
+      body: JSON.stringify(e)
+    };
   }
-  return {
-    statusCode: 404,
-    body: 'error!'
-  };
 };
 
 const generateId = () => {
