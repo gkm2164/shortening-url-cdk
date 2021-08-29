@@ -4,9 +4,16 @@
   "plugins": [
     "@typescript-eslint"
   ],
+  "parserOptions": {
+    "project": ["./tsconfig.json"]
+  },
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/eslint-recommended",
-    "plugin:@typescript-eslint/recommended"
-  ]
+    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking"
+  ],
+  "rules": {
+    "no-console": 2 // Remember, this means error!
+  }
 }
