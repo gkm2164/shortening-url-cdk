@@ -1,46 +1,35 @@
 {
   "name": "shorturl-prj",
-  "version": "0.1.0",
-  "bin": {
-    "shorturl-prj": "bin/shorturl-prj.js"
-  },
+  "version": "1.0.0",
+  "bin": { "shorturl-prj": "bin/shorturl-prj.js" },
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
-    "prebuild-lambda": "rm -rf dist && mkdir dist",
-    "build-lambda": "tsc src/*.ts --outDir dist",
-    "postbuild-lambda": "mkdir dist/node_modules && cp -R node_modules/underscore dist/node_modules/",
     "lint": "eslint . --ext .ts",
     "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write"
   },
   "devDependencies": {
-    "@aws-cdk/assert": "^1.120.0",
-    "@types/aws-lambda": "^8.10.83",
-    "@types/jest": "^26.0.10",
-    "@types/node": "10.17.27",
-    "@types/underscore": "^1.11.3",
-    "@typescript-eslint/eslint-plugin": "^4.29.3",
-    "@typescript-eslint/parser": "^4.29.3",
-    "aws": "0.0.3-2",
-    "aws-cdk": "1.97.0",
-    "aws-lambda": "^1.0.6",
-    "aws-sdk": "^2.978.0",
-    "eslint": "^7.32.0",
-    "jest": "^26.4.2",
-    "prettier": "^2.3.2",
-    "ts-jest": "^26.2.0",
-    "ts-node": "^9.0.0",
-    "typescript": "~3.9.7"
+    "@types/aws-lambda": "^8.10.145",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^22.7.4",
+    "@typescript-eslint/eslint-plugin": "^8.8.0",
+    "@typescript-eslint/parser": "^8.8.0",
+    "aws-cdk": "^2.160.0",
+    "esbuild": "^0.24.0",
+    "eslint": "^8.57.1",
+    "jest": "^29.7.0",
+    "prettier": "^3.3.3",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
+    "typescript": "~5.6.2"
   },
   "dependencies": {
-    "@aws-cdk/aws-apigateway": "^1.120.0",
-    "@aws-cdk/aws-dynamodb": "^1.120.0",
-    "@aws-cdk/aws-lambda": "^1.120.0",
-    "@aws-cdk/aws-lambda-nodejs": "^1.120.0",
-    "@aws-cdk/core": "^1.120.0",
-    "source-map-support": "^0.5.16",
-    "underscore": "^1.13.1"
+    "@aws-sdk/client-dynamodb": "^3.665.0",
+    "@aws-sdk/lib-dynamodb": "^3.665.0",
+    "aws-cdk-lib": "^2.160.0",
+    "constructs": "^10.3.0",
+    "source-map-support": "^0.5.21"
   }
 }

@@ -1,32 +1,44 @@
-# Welcome to Shortening URL CDK TypeScript project!
+# gben.me URL shortener
 
-This is a shortening URL project for TypeScript development with CDK.
+Short links live at the root of `gben.me`, so `https://gben.me/<id>` is the whole of the public
+surface. Links are created over mail, not over HTTP.
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+## Why mail
 
-## Prerequisite
-- Node version is 16.x
-- Install CDK CLI.
+The service needs to be usable by exactly one person without building an account system for one
+person. There is already a mail server on this domain that knows who is who, so a link is created
+by sending mail to `url-shortener@gben.me`:
 
-## How to build?
+    Subject: shortenUrl
+    Body:    https://example.com/the-long-one
 
-1. build lambda
-```npm run build-lambda```
-2. synthesize stack
-```npx cdk synth```
-3. deploy!
-```npx cdk deploy```
+and the reply carries the short link. Forging the `From` header gains nothing, because the reply
+goes to the real mailbox behind that address, and an id is unguessable.
 
-## Useful commands
+## Layout
 
- * `npm run build`   compile typescript to js
- * `npm run watch`   watch for changes and compile
- * `npm run test`    perform the jest unit tests
- * `cdk deploy`      deploy this stack to your default AWS account/region
- * `cdk diff`        compare deployed stack with current state
- * `cdk synth`       emits the synthesized CloudFormation template
+| path | what |
+|---|---|
+| `lib/shorturl-prj-stack.ts` | CDK stack: redirect Lambda, API Gateway, apex domain, certificate |
+| `src/main.ts` | Lambda handlers |
+| `src/links.ts` | id generation, URL validation, reserved paths |
+| `src/repo.ts` | DynamoDB access |
 
-## Directory structure
-- src: lambda
-- bin: scaffolding of the project, maybe entry
-- lib: infrastructure codes, perhaps stacks
+The `ShortenedUrl` table is *adopted*, not declared. It predates this stack (2021) and still
+holds the original links; declaring it here would let CloudFormation delete it.
+
+## Deploying
+
+    npm install
+    npm test
+    npx cdk deploy ShorturlApexStack
+
+Everything is in `us-east-1`: an edge-optimised API domain needs its certificate there, and the
+table has always been there.
+
+## Notes
+
+- Redirects are **302**. The original 301 was cached by browsers forever, so a link could never
+  be repointed or withdrawn, and no visit after the first was ever seen by the service.
+- Ids avoid vowels and look-alike characters, so they survive being read aloud or retyped.
+- `/.well-known/*`, `robots.txt` and `favicon.ico` are never handed out as link ids.

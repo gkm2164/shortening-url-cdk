@@ -1,18 +1,19 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
-import * as cdk from '@aws-cdk/core';
+import * as cdk from 'aws-cdk-lib';
 import { ShorturlPrjStack } from '../lib/shorturl-prj-stack';
 
 const app = new cdk.App();
-new ShorturlPrjStack(app, 'ShorturlPrjStack', {
-  /* If you don't specify 'env', this stack will be environment-agnostic.
-   * Account/Region-dependent features and context lookups will not work,
-   * but a single synthesized template can be deployed anywhere. */
-  /* Uncomment the next line to specialize this stack for the AWS Account
-   * and Region that are implied by the current CLI configuration. */
-  // env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
-  /* Uncomment the next line if you know exactly what Account and Region you
-   * want to deploy the stack to. */
-  // env: { account: '123456789012', region: 'us-east-1' },
-  /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
+
+// A separate stack from the 2021 ShorturlPrjStack on purpose. That stack declared the links
+// table, so removing the declaration here would have CloudFormation delete it - and the links
+// with it. This one adopts the table and leaves ownership where it is.
+new ShorturlPrjStack(app, 'ShorturlApexStack', {
+  // Edge-optimised API domains and their certificates must live in us-east-1, and the links
+  // table has been there since 2021.
+  env: { account: process.env.CDK_DEFAULT_ACCOUNT ?? '842390211626', region: 'us-east-1' },
+  domainName: 'gben.me',
+  hostedZoneId: 'Z0929349277K57AFKVM9M',
+  zoneName: 'gben.me',
+  tableName: 'ShortenedUrl'
 });
