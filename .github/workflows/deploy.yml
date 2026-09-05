@@ -1,0 +1,64 @@
+name: Deploy shortener
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# OIDC, so nothing long-lived is stored in the repo. The role is shared with the mail server's
+# deploy and trusts this repository by name; it is managed out of band, not by either CDK app.
+permissions:
+  id-token: write
+  contents: read
+
+# One deploy at a time: two overlapping CloudFormation updates on the same stack fail the
+# second, and a queued run would only deploy an older commit.
+concurrency:
+  group: deploy-shortener
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+
+      # Runs before the deploy on purpose: the stack assertions catch a template that would
+      # deploy but be wrong - a declared links table, or a create endpoint on the internet.
+      - name: Test
+        run: npm test
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::842390211626:role/github-actions-contrabass-deploy
+          # us-east-1 is where the stack lives: an edge-optimised API domain needs its
+          # certificate there, and the links table has been there since 2021.
+          aws-region: us-east-1
+
+      - name: Deploy
+        run: npx cdk deploy ShorturlApexStack --require-approval never
+
+      # A deploy that leaves the domain answering 404 for a real link is a failed deploy, even
+      # when CloudFormation is happy, so the run only goes green once a link actually resolves.
+      - name: Check a real link still redirects
+        run: |
+          set -euo pipefail
+          id=$(aws dynamodb scan --table-name ShortenedUrl --region us-east-1 \
+                 --filter-expression "begins_with(#u, :https)" \
+                 --expression-attribute-names '{"#u":"url"}' \
+                 --expression-attribute-values '{":https":{"S":"https://"}}' \
+                 --max-items 1 --query 'Items[0].id.S' --output text)
+          echo "following https://gben.me/$id"
+          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "https://gben.me/$id")
+          echo "  -> HTTP $code"
+          test "$code" = "302"
+          missing=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 https://gben.me/zzznosuchlink)
+          echo "  unknown link -> HTTP $missing"
+          test "$missing" = "404"

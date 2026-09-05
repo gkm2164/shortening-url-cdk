@@ -29,6 +29,11 @@ holds the original links; declaring it here would let CloudFormation delete it.
 
 ## Deploying
 
+Push to `main`. The workflow tests, deploys, and then follows a real link - a deploy that leaves
+the domain answering 404 is a failed deploy even when CloudFormation is satisfied.
+
+By hand:
+
     npm install
     npm test
     npx cdk deploy ShorturlApexStack
