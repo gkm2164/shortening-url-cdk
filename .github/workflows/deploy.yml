@@ -45,20 +45,21 @@ jobs:
       - name: Deploy
         run: npx cdk deploy ShorturlApexStack --require-approval never
 
-      # A deploy that leaves the domain answering 404 for a real link is a failed deploy, even
-      # when CloudFormation is happy, so the run only goes green once a link actually resolves.
-      - name: Check a real link still redirects
+      # A deploy that leaves the domain broken is a failed deploy even when CloudFormation is
+      # happy, so the run only goes green once the live domain answers correctly.
+      #
+      # An unknown id is the whole check. Reaching our own 404 means DNS, the certificate, the
+      # domain mapping, API Gateway, the Lambda and the DynamoDB read all worked and the link
+      # simply was not there. A broken deploy fails differently and visibly: 403 when the path
+      # is not mapped, 5xx when the Lambda cannot run, a TLS error when the certificate is
+      # wrong. No credentials and no known-good id are needed, which is why this does not read
+      # the table - the deploy role has no business holding read access to the links.
+      - name: Check the live domain answers
         run: |
           set -euo pipefail
-          id=$(aws dynamodb scan --table-name ShortenedUrl --region us-east-1 \
-                 --filter-expression "begins_with(#u, :https)" \
-                 --expression-attribute-names '{"#u":"url"}' \
-                 --expression-attribute-values '{":https":{"S":"https://"}}' \
-                 --max-items 1 --query 'Items[0].id.S' --output text)
-          echo "following https://gben.me/$id"
-          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "https://gben.me/$id")
-          echo "  -> HTTP $code"
-          test "$code" = "302"
-          missing=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 https://gben.me/zzznosuchlink)
-          echo "  unknown link -> HTTP $missing"
-          test "$missing" = "404"
+          body=$(curl -s --max-time 20 -w '\n%{http_code}' https://gben.me/zzznosuchlink)
+          code=$(printf '%s' "$body" | tail -n1)
+          echo "unknown link -> HTTP $code"
+          printf '%s' "$body" | head -n1
+          test "$code" = "404"
+          printf '%s' "$body" | head -n1 | grep -q 'no such link'
